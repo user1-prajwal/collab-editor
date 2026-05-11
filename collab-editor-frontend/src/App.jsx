@@ -132,6 +132,7 @@ function EditorPage() {
   const [cursors, setCursors] = useState({})
   const [userList, setUserList] = useState([])
   const [showUsers, setShowUsers] = useState(false)
+  const [languageAlert, setLanguageAlert] = useState('')
 
   const wsRef = useRef(null)
   const isRemoteChange = useRef(false)
@@ -173,6 +174,12 @@ function EditorPage() {
       }
       if (data.type === 'users') setUsers(data.count)
       if (data.type === 'userlist') setUserList(data.users)
+
+        if (data.type === 'language') {
+        setLanguageAlert(`${data.changedBy} is using ${data.language} — you are using ${language}`)
+        setTimeout(() => setLanguageAlert(''), 4000)
+        }
+
       if (data.type === 'cursor') {
         setCursors((prev) => ({
           ...prev,
@@ -412,12 +419,16 @@ function EditorPage() {
         {/* Language Selector */}
         <select
           value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-          style={{
-            marginLeft: '10px', padding: '5px 10px',
-            background: '#3a3a3a', color: 'white',
-            border: '1px solid #555', borderRadius: '5px', cursor: 'pointer'
-          }}
+            onChange={(e) => {
+            setLanguage(e.target.value)
+            if (wsRef.current?.readyState === 1) {
+            wsRef.current.send(JSON.stringify({
+            type: 'language',
+            language: e.target.value,
+            changedBy: username
+            }))
+            }
+            }}
         >
           {LANGUAGES.map((lang) => (
             <option key={lang} value={lang}>{lang}</option>
@@ -437,6 +448,29 @@ function EditorPage() {
           ▶ Run
         </button>
       </div>
+
+          {languageAlert && (
+      <div style={{
+        position: 'fixed',
+        bottom: '24px',
+        right: '24px',
+        background: '#1e1e2e',
+        border: '1px solid #4CAF50',
+        borderLeft: '4px solid #4CAF50',
+        color: 'white',
+        padding: '12px 20px',
+        borderRadius: '8px',
+        fontSize: '13px',
+        fontWeight: '500',
+        zIndex: 999,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+        maxWidth: '300px',
+        animation: 'fadeIn 0.3s ease'
+        }}>
+      🔄 {languageAlert}
+      </div>
+      )}
+
 
       {/* Editor + Output */}
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
@@ -467,7 +501,7 @@ function EditorPage() {
   )
 }
 
-// ─── APP ROUTER ──────────────────────────────────────────────────
+// ─── APP ROUTER 
 function App() {
   return (
     <Routes>
