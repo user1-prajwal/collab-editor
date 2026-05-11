@@ -1,5 +1,3 @@
-
-
 const http = require('http')
 const express = require('express')
 const { WebSocketServer } = require('ws')
@@ -17,7 +15,8 @@ app.get('/', (req, res) => {
 })
 
 const rooms = new Map()
-const roomCode = new Map() // 👈 NEW: remember code per room
+const roomCode = new Map()
+const roomUsers = new Map()
 
 function broadcastUserCount(roomId) {
   const roomClients = rooms.get(roomId)
@@ -30,6 +29,18 @@ function broadcastUserCount(roomId) {
   })
 }
 
+function broadcastUserList(roomId) {
+  const roomClients = rooms.get(roomId)
+  const users = roomUsers.get(roomId)
+  if (!roomClients || !users) return
+  const userList = Array.from(users.values())
+  roomClients.forEach((client) => {
+    if (client.readyState === 1) {
+      client.send(JSON.stringify({ type: 'userlist', users: userList }))
+    }
+  })
+}
+
 const wss = new WebSocketServer({ server })
 
 wss.on('connection', (ws, req) => {
@@ -37,14 +48,11 @@ wss.on('connection', (ws, req) => {
   console.log(`Someone joined room: ${roomId} 🟢`)
 
   if (!rooms.has(roomId)) rooms.set(roomId, new Set())
+  if (!roomUsers.has(roomId)) roomUsers.set(roomId, new Map())
   rooms.get(roomId).add(ws)
 
-  // 👇 NEW: send existing code to new user
   if (roomCode.has(roomId)) {
-    ws.send(JSON.stringify({
-      type: 'init',
-      code: roomCode.get(roomId)
-    }))
+    ws.send(JSON.stringify({ type: 'init', code: roomCode.get(roomId) }))
   }
 
   broadcastUserCount(roomId)
@@ -53,11 +61,19 @@ wss.on('connection', (ws, req) => {
     const text = message.toString()
     const data = JSON.parse(text)
 
-    // 👇 NEW: save latest code
     if (data.type === 'code') {
       roomCode.set(roomId, data.code)
     }
 
+    if (data.type === 'join') {
+      roomUsers.get(roomId)?.set(ws, {
+        name: data.name,
+        color: data.color
+      })
+      broadcastUserList(roomId)
+    }
+
+    // broadcast to everyone else in room
     const roomClients = rooms.get(roomId)
     roomClients.forEach((client) => {
       if (client !== ws && client.readyState === 1) {
@@ -69,7 +85,9 @@ wss.on('connection', (ws, req) => {
   ws.on('close', () => {
     console.log(`Someone left room: ${roomId} 🔴`)
     rooms.get(roomId)?.delete(ws)
+    roomUsers.get(roomId)?.delete(ws)
     broadcastUserCount(roomId)
+    broadcastUserList(roomId)
   })
 })
 
