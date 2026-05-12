@@ -1,17 +1,44 @@
 const http = require('http')
 const express = require('express')
 const { WebSocketServer } = require('ws')
+const { runCode } = require('./executor')
 
 const app = express()
 const server = http.createServer(app)
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Headers', 'Content-Type')
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200)
+  }
   next()
 })
 
 app.get('/', (req, res) => {
   res.send('Collab Editor Backend is running! ✅')
+})
+
+// Parse JSON request bodies
+app.use(express.json())
+
+// Code execution endpoint
+app.post('/run', async (req, res) => {
+  const { language, code } = req.body
+
+  if (!language || !code) {
+    return res.json({ output: '❌ Missing language or code', error: true })
+  }
+
+  console.log(`Executing ${language} code...`)
+
+  try {
+    const result = await runCode(language, code)
+    res.json(result)
+  } catch (err) {
+    res.json({ output: '❌ Execution failed: ' + err.message, error: true })
+  }
 })
 
 const rooms = new Map()

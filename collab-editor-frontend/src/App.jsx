@@ -256,22 +256,26 @@ function EditorPage() {
     editor.onDidChangeCursorPosition(handleCursorChange)
   }
 
-  function runCode() {
-    if (language !== 'javascript') {
-      setOutput('⚠️ Browser can only run JavaScript for now!')
-      return
-    }
-    try {
-      let result = ''
-      const originalLog = console.log
-      console.log = (...args) => { result += args.join(' ') + '\n' }
-      new Function(code)()
-      console.log = originalLog
-      setOutput(result || '✅ Ran successfully (no output)')
-    } catch (error) {
-      setOutput('❌ Error: ' + error.message)
-    }
+  async function runCode() {
+  setOutput('⏳ Running...')
+  if (language === 'typescript') {
+    setOutput('⚠️ TypeScript execution coming soon!\n\nFor now switch to JavaScript — TypeScript syntax mostly works in JS too!')
+    return
   }
+
+  try {
+    const response = await fetch('http://localhost:4000/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ language, code })
+    })
+
+    const result = await response.json()
+    setOutput(result.output)
+  } catch {
+    setOutput('❌ Could not connect to server')
+  }
+}
 
 
   function sendMessage() {
