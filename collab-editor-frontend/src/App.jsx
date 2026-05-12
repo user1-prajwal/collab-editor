@@ -124,8 +124,8 @@ function EditorPage() {
 
   const [username, setUsername] = useState('')
   const [nameEntered, setNameEntered] = useState(false)
-  const [language, setLanguage] = useState('javascript')
-  const [code, setCode] = useState('// Start coding here...')
+  // const [language, setLanguage] = useState('javascript')
+  // const [code, setCode] = useState('// Start coding here...')
   const [output, setOutput] = useState('')
   const [connected, setConnected] = useState(false)
   const [users, setUsers] = useState(0)
@@ -136,11 +136,19 @@ function EditorPage() {
   const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState('')
   const [showChat, setShowChat] = useState(true)
+  const [files, setFiles] = useState([
+    { id: '1', name: 'index.js', language: 'javascript', code: '// Start coding here...' }
+    ])
+  const [activeFileId, setActiveFileId] = useState('1')
+  const [showNewFile, setShowNewFile] = useState(false)
+  const [newFileName, setNewFileName] = useState('')
 
   const wsRef = useRef(null)
   const isRemoteChange = useRef(false)
   const editorRef = useRef(null)
   const decorationsRef = useRef([])
+
+  const activeFile = files.find(f => f.id === activeFileId) || files[0]
 
   function sendJoin(name) {
     if (wsRef.current?.readyState === 1) {
@@ -170,11 +178,41 @@ function EditorPage() {
       const text = event.data instanceof Blob ? await event.data.text() : event.data
       const data = JSON.parse(text)
 
-      if (data.type === 'code' || data.type === 'init') {
+      // if (data.type === 'code' || data.type === 'init') {
+      //   isRemoteChange.current = true
+      //   setCode(data.code)
+      //   isRemoteChange.current = false
+      // }
+
+      if (data.type === 'code') {
         isRemoteChange.current = true
-        setCode(data.code)
+        setFiles(prev => prev.map(f =>
+          f.id === data.fileId ? { ...f, code: data.code } : f
+        ))
         isRemoteChange.current = false
       }
+
+      if (data.type === 'init') {
+        isRemoteChange.current = true
+        if (data.files) {
+          setFiles(data.files)
+          setActiveFileId(data.files[0].id)
+        }
+        isRemoteChange.current = false
+      }
+
+      if (data.type === 'newfile') {
+        setFiles(prev => [...prev, data.file])
+      }
+
+      if (data.type === 'language') {
+        setFiles(prev => prev.map(f =>
+          f.id === data.fileId ? { ...f, language: data.language } : f
+        ))
+        setLanguageAlert(`${data.changedBy} switched ${data.fileId} to ${data.language}`)
+        setTimeout(() => setLanguageAlert(''), 4000)
+      }
+
       if (data.type === 'users') setUsers(data.count)
       if (data.type === 'userlist') setUserList(data.users)
 
@@ -188,10 +226,16 @@ function EditorPage() {
         }])
         }   
 
+        // if (data.type === 'language') {
+        // setLanguageAlert(`${data.changedBy} is using ${data.language} — you are using ${language}`)
+        // setTimeout(() => setLanguageAlert(''), 4000)
+        // }
+
+
         if (data.type === 'language') {
-        setLanguageAlert(`${data.changedBy} is using ${data.language} — you are using ${language}`)
-        setTimeout(() => setLanguageAlert(''), 4000)
-        }
+          setLanguageAlert(`${data.changedBy} switched to ${data.language}`)
+          setTimeout(() => setLanguageAlert(''), 4000)
+}
 
       if (data.type === 'cursor') {
         setCursors((prev) => ({
@@ -235,12 +279,21 @@ function EditorPage() {
 }, [messages])
 
   function handleCodeChange(value) {
-    if (isRemoteChange.current) return
-    setCode(value)
-    if (wsRef.current?.readyState === 1) {
-      wsRef.current.send(JSON.stringify({ type: 'code', code: value }))
-    }
+  if (isRemoteChange.current) return
+
+  // Update active file's code
+  setFiles(prev => prev.map(f =>
+    f.id === activeFileId ? { ...f, code: value } : f
+  ))
+
+  if (wsRef.current?.readyState === 1) {
+    wsRef.current.send(JSON.stringify({
+      type: 'code',
+      code: value,
+      fileId: activeFileId
+    }))
   }
+}
 
   function handleCursorChange(e) {
     if (wsRef.current?.readyState === 1) {
@@ -258,18 +311,19 @@ function EditorPage() {
 
   async function runCode() {
   setOutput('⏳ Running...')
-  if (language === 'typescript') {
-    setOutput('⚠️ TypeScript execution coming soon!\n\nFor now switch to JavaScript — TypeScript syntax mostly works in JS too!')
+  if (activeFile.language === 'typescript') {
+    setOutput('⚠️ TypeScript execution coming soon!')
     return
   }
-
   try {
     const response = await fetch('http://localhost:4000/run', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ language, code })
+      body: JSON.stringify({ 
+        language: activeFile.language, 
+        code: activeFile.code 
+      })
     })
-
     const result = await response.json()
     setOutput(result.output)
   } catch {
@@ -304,6 +358,40 @@ function EditorPage() {
   // Send to everyone else
   wsRef.current.send(JSON.stringify(msg))
   setNewMessage('')
+}
+
+
+function createNewFile() {
+  if (!newFileName.trim()) return
+
+  // Auto detect language from extension
+  const ext = newFileName.split('.').pop()
+  const extMap = {
+    js: 'javascript', py: 'python',
+    java: 'java', cpp: 'cpp',
+    ts: 'typescript', txt: 'plaintext'
+  }
+  const language = extMap[ext] || 'javascript'
+
+  const newFile = {
+    id: Date.now().toString(),
+    name: newFileName.trim(),
+    language,
+    code: ''
+  }
+
+  setFiles(prev => [...prev, newFile])
+  setActiveFileId(newFile.id)
+  setNewFileName('')
+  setShowNewFile(false)
+
+  // Broadcast to others
+  if (wsRef.current?.readyState === 1) {
+    wsRef.current.send(JSON.stringify({
+      type: 'newfile',
+      file: newFile
+    }))
+  }
 }
 
   return (
@@ -470,17 +558,22 @@ function EditorPage() {
 
         {/* Language Selector */}
         <select
-          value={language}
+          // value={language}
+          value={activeFile.language}
             onChange={(e) => {
-            setLanguage(e.target.value)
+            const newLang = e.target.value
+            setFiles(prev => prev.map(f =>
+              f.id === activeFileId ? { ...f, language: newLang } : f
+            ))
             if (wsRef.current?.readyState === 1) {
-            wsRef.current.send(JSON.stringify({
-            type: 'language',
-            language: e.target.value,
-            changedBy: username
-            }))
+              wsRef.current.send(JSON.stringify({
+                type: 'language',
+                language: newLang,
+                changedBy: username,
+                fileId: activeFileId
+              }))
             }
-            }}
+          }}
         >
           {LANGUAGES.map((lang) => (
             <option key={lang} value={lang}>{lang}</option>
@@ -543,16 +636,110 @@ function EditorPage() {
 
 
       {/* Editor + Output + Chat */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+      {/* <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         <div style={{ flex: 1 }}>
+          <Editor */}
+        {/* Editor + Output */}
+          <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+
+            {/* File Tree */}
+            <div style={{
+              width: '200px',
+              background: '#252526',
+              borderRight: '1px solid #444',
+              display: 'flex',
+              flexDirection: 'column',
+              flexShrink: 0
+            }}>
+
+              {/* File Tree Header */}
+              <div style={{
+                padding: '8px 12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                borderBottom: '1px solid #444'
+              }}>
+                <span style={{ color: '#888', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }}>
+                  Files
+                </span>
+                <button
+                  onClick={() => setShowNewFile(prev => !prev)}
+                  style={{
+                    background: 'transparent', border: 'none',
+                    color: '#888', cursor: 'pointer',
+                    fontSize: '18px', lineHeight: 1, padding: '0'
+                  }}
+                  title="New file"
+                >
+                  +
+                </button>
+              </div>
+
+              {/* New File Input */}
+              {showNewFile && (
+                <div style={{ padding: '8px' }}>
+                  <input
+                    type="text"
+                    placeholder="filename.py"
+                    autoFocus
+                    value={newFileName}
+                    onChange={(e) => setNewFileName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') createNewFile()
+                      if (e.key === 'Escape') setShowNewFile(false)
+                    }}
+                    style={{
+                      width: '100%', padding: '4px 8px',
+                      background: '#1e1e1e', border: '1px solid #4CAF50',
+                      borderRadius: '4px', color: 'white',
+                      fontSize: '12px', outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* File List */}
+              <div style={{ overflowY: 'auto', flex: 1 }}>
+                {files.map((file) => (
+                  <div
+                    key={file.id}
+                    onClick={() => setActiveFileId(file.id)}
+                    style={{
+                      padding: '7px 12px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      background: file.id === activeFileId ? '#2d2d2d' : 'transparent',
+                      borderLeft: file.id === activeFileId ? '2px solid #4CAF50' : '2px solid transparent',
+                      color: file.id === activeFileId ? 'white' : '#888',
+                      fontSize: '13px',
+                    }}
+                  >
+                    <span>📄</span>
+                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {file.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+            </div>
+
+            <div style={{ flex: 1 }}>
           <Editor
-            height="100%"
-            language={language}
-            value={code}
-            onChange={handleCodeChange}
-            onMount={handleEditorMount}
-            theme="vs-dark"
-          />
+
+
+          height="100%"
+          language={activeFile.language}
+          value={activeFile.code}
+          onChange={handleCodeChange}
+          onMount={handleEditorMount}
+          theme="vs-dark"
+          key={activeFileId}
+        />
         </div>
 
         <div style={{
@@ -567,194 +754,194 @@ function EditorPage() {
         </div>
       </div>
 
- {/* Floating Chat Popup */}
-{showChat && (
-  <div style={{
-    position: 'fixed',
-    bottom: '24px',
-    right: '24px',
-    width: '340px',
-    height: '460px',
-    background: '#181818',
-    border: '1px solid #2f2f2f',
-    borderRadius: '16px',
-    boxShadow: '0 10px 40px rgba(0,0,0,0.65)',
-    display: 'flex',
-    flexDirection: 'column',
-    zIndex: 998,
-    overflow: 'hidden',
-    backdropFilter: 'blur(12px)'
-  }}>
-
-    {/* Header */}
-    <div style={{
-      padding: '14px 18px',
-      background: '#202020',
-      borderBottom: '1px solid #303030',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      flexShrink: 0
-    }}>
-      <span style={{
-        color: '#f5f5f5',
-        fontSize: '15px',
-        fontWeight: '600',
-        letterSpacing: '0.3px'
-      }}>
-        💬 Room Chat
-      </span>
-
-      <button
-        onClick={() => setShowChat(false)}
-        style={{
-          background: 'transparent',
-          border: 'none',
-          color: '#888',
-          cursor: 'pointer',
-          fontSize: '18px',
-          transition: '0.2s'
-        }}
-      >
-        ✕
-      </button>
-    </div>
-
-    {/* Messages */}
-    <div
-      id="chat-messages"
-      style={{
-        flex: 1,
-        overflowY: 'auto',
-        padding: '16px',
+    {/* Floating Chat Popup */}
+    {showChat && (
+      <div style={{
+        position: 'fixed',
+        bottom: '24px',
+        right: '24px',
+        width: '340px',
+        height: '460px',
+        background: '#181818',
+        border: '1px solid #2f2f2f',
+        borderRadius: '16px',
+        boxShadow: '0 10px 40px rgba(0,0,0,0.65)',
         display: 'flex',
         flexDirection: 'column',
-        gap: '14px',
-        background: '#181818'
-      }}
-    >
-      {messages.length === 0 ? (
+        zIndex: 998,
+        overflow: 'hidden',
+        backdropFilter: 'blur(12px)'
+      }}>
+
+        {/* Header */}
         <div style={{
-          margin: 'auto',
-          textAlign: 'center',
-          color: '#666',
-          fontSize: '13px',
-          lineHeight: '1.8'
+          padding: '14px 18px',
+          background: '#202020',
+          borderBottom: '1px solid #303030',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexShrink: 0
         }}>
-          No messages yet 👋
-          <br />
-          Start the conversation
+          <span style={{
+            color: '#f5f5f5',
+            fontSize: '15px',
+            fontWeight: '600',
+            letterSpacing: '0.3px'
+          }}>
+            💬 Room Chat
+          </span>
+
+          <button
+            onClick={() => setShowChat(false)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#888',
+              cursor: 'pointer',
+              fontSize: '18px',
+              transition: '0.2s'
+            }}
+          >
+            ✕
+          </button>
         </div>
-      ) : (
-        messages.map((msg, index) => {
-          const isMe = msg.name === username
 
-          return (
-            <div
-              key={index}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: isMe ? 'flex-end' : 'flex-start',
-                gap: '5px'
-              }}
-            >
-
-              {/* Username + time */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '7px',
-                flexDirection: isMe ? 'row-reverse' : 'row'
-              }}>
-                <span style={{
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: msg.color
-                }}>
-                  {isMe ? 'You' : msg.name}
-                </span>
-
-                <span style={{
-                  fontSize: '10px',
-                  color: '#777'
-                }}>
-                  {msg.time}
-                </span>
-              </div>
-
-              {/* Message bubble */}
-              <div style={{
-                background: isMe
-                  ? '#2563EB'
-                  : '#242424',
-                color: '#f3f4f6',
-                padding: '10px 14px',
-                borderRadius: isMe
-                  ? '14px 14px 4px 14px'
-                  : '14px 14px 14px 4px',
-                fontSize: '13.5px',
-                maxWidth: '240px',
-                wordBreak: 'break-word',
-                lineHeight: '1.6',
-                border: isMe
-                  ? 'none'
-                  : '1px solid #333',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.25)'
-              }}>
-                {msg.text}
-              </div>
+        {/* Messages */}
+        <div
+          id="chat-messages"
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: '16px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '14px',
+            background: '#181818'
+          }}
+        >
+          {messages.length === 0 ? (
+            <div style={{
+              margin: 'auto',
+              textAlign: 'center',
+              color: '#666',
+              fontSize: '13px',
+              lineHeight: '1.8'
+            }}>
+              No messages yet 👋
+              <br />
+              Start the conversation
             </div>
-          )
-        })
-      )}
-    </div>
+          ) : (
+            messages.map((msg, index) => {
+              const isMe = msg.name === username
 
-    {/* Input */}
-    <div style={{
-      padding: '12px',
-      borderTop: '1px solid #2f2f2f',
-      display: 'flex',
-      gap: '10px',
-      background: '#202020'
-    }}>
-      <input
-        type="text"
-        placeholder="Message..."
-        value={newMessage}
-        onChange={(e) => setNewMessage(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-        style={{
-          flex: 1,
-          padding: '10px 14px',
-          background: '#121212',
-          border: '1px solid #333',
-          borderRadius: '10px',
-          color: '#f5f5f5',
-          fontSize: '13px',
-          outline: 'none'
-        }}
-      />
+              return (
+                <div
+                  key={index}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: isMe ? 'flex-end' : 'flex-start',
+                    gap: '5px'
+                  }}
+                >
 
-      <button
-        onClick={sendMessage}
-        style={{
-          padding: '10px 14px',
-          background: '#2563EB',
-          color: 'white',
-          border: 'none',
-          borderRadius: '10px',
-          cursor: 'pointer',
-          fontSize: '14px',
-          fontWeight: '600'
-        }}
-      >
-        ➤
-      </button>
-    </div>
+                  {/* Username + time */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '7px',
+                    flexDirection: isMe ? 'row-reverse' : 'row'
+                  }}>
+                    <span style={{
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      color: msg.color
+                    }}>
+                      {isMe ? 'You' : msg.name}
+                    </span>
 
-  </div>
-)}
+                    <span style={{
+                      fontSize: '10px',
+                      color: '#777'
+                    }}>
+                      {msg.time}
+                    </span>
+                  </div>
+
+                  {/* Message bubble */}
+                  <div style={{
+                    background: isMe
+                      ? '#2563EB'
+                      : '#242424',
+                    color: '#f3f4f6',
+                    padding: '10px 14px',
+                    borderRadius: isMe
+                      ? '14px 14px 4px 14px'
+                      : '14px 14px 14px 4px',
+                    fontSize: '13.5px',
+                    maxWidth: '240px',
+                    wordBreak: 'break-word',
+                    lineHeight: '1.6',
+                    border: isMe
+                      ? 'none'
+                      : '1px solid #333',
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.25)'
+                  }}>
+                    {msg.text}
+                  </div>
+                </div>
+              )
+            })
+          )}
+        </div>
+
+        {/* Input */}
+        <div style={{
+          padding: '12px',
+          borderTop: '1px solid #2f2f2f',
+          display: 'flex',
+          gap: '10px',
+          background: '#202020'
+        }}>
+          <input
+            type="text"
+            placeholder="Message..."
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+            style={{
+              flex: 1,
+              padding: '10px 14px',
+              background: '#121212',
+              border: '1px solid #333',
+              borderRadius: '10px',
+              color: '#f5f5f5',
+              fontSize: '13px',
+              outline: 'none'
+            }}
+          />
+
+          <button
+            onClick={sendMessage}
+            style={{
+              padding: '10px 14px',
+              background: '#2563EB',
+              color: 'white',
+              border: 'none',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '600'
+            }}
+          >
+            ➤
+          </button>
+        </div>
+
+      </div>
+    )}
 
     </div>
   )

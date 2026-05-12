@@ -1,3 +1,4 @@
+
 const http = require('http')
 const express = require('express')
 const { WebSocketServer } = require('ws')
@@ -10,29 +11,21 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*')
   res.header('Access-Control-Allow-Headers', 'Content-Type')
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200)
-  }
+  if (req.method === 'OPTIONS') return res.sendStatus(200)
   next()
 })
+
+app.use(express.json())
 
 app.get('/', (req, res) => {
   res.send('Collab Editor Backend is running! ✅')
 })
 
-// Parse JSON request bodies
-app.use(express.json())
-
-// Code execution endpoint
 app.post('/run', async (req, res) => {
   const { language, code } = req.body
-
   if (!language || !code) {
     return res.json({ output: '❌ Missing language or code', error: true })
   }
-
-  console.log(`Executing ${language} code...`)
-
   try {
     const result = await runCode(language, code)
     res.json(result)
@@ -42,8 +35,17 @@ app.post('/run', async (req, res) => {
 })
 
 const rooms = new Map()
-const roomCode = new Map()
 const roomUsers = new Map()
+
+// Default file every room starts with
+function getDefaultFiles() {
+  return [
+    { id: '1', name: 'index.js', language: 'javascript', code: '// Start coding here...' }
+  ]
+}
+
+// Each room stores its files
+const roomFiles = new Map()
 
 function broadcastUserCount(roomId) {
   const roomClients = rooms.get(roomId)
@@ -74,13 +76,23 @@ wss.on('connection', (ws, req) => {
   const roomId = req.url?.split('/').pop() || 'default'
   console.log(`Someone joined room: ${roomId} 🟢`)
 
+  // Setup room if first user
   if (!rooms.has(roomId)) rooms.set(roomId, new Set())
   if (!roomUsers.has(roomId)) roomUsers.set(roomId, new Map())
+
+  // Setup default files if room is new
+  if (!roomFiles.has(roomId)) {
+    roomFiles.set(roomId, getDefaultFiles())
+  }
+
   rooms.get(roomId).add(ws)
 
-  if (roomCode.has(roomId)) {
-    ws.send(JSON.stringify({ type: 'init', code: roomCode.get(roomId) }))
-  }
+  // Send current files to new user immediately
+  const currentFiles = roomFiles.get(roomId)
+  ws.send(JSON.stringify({
+    type: 'init',
+    files: currentFiles
+  }))
 
   broadcastUserCount(roomId)
 
@@ -88,10 +100,26 @@ wss.on('connection', (ws, req) => {
     const text = message.toString()
     const data = JSON.parse(text)
 
+    // Update file code in memory
     if (data.type === 'code') {
-      roomCode.set(roomId, data.code)
+      const files = roomFiles.get(roomId)
+      if (files && data.fileId) {
+        const idx = files.findIndex(f => f.id === data.fileId)
+        if (idx !== -1) files[idx].code = data.code
+      }
     }
 
+    // Add new file to room memory
+    if (data.type === 'newfile') {
+      const files = roomFiles.get(roomId)
+      if (files) {
+        // Only add if not already there
+        const exists = files.find(f => f.id === data.file.id)
+        if (!exists) files.push(data.file)
+      }
+    }
+
+    // Save user info
     if (data.type === 'join') {
       roomUsers.get(roomId)?.set(ws, {
         name: data.name,
@@ -100,7 +128,7 @@ wss.on('connection', (ws, req) => {
       broadcastUserList(roomId)
     }
 
-    // broadcast to everyone else in room
+    // Broadcast to everyone else in room
     const roomClients = rooms.get(roomId)
     roomClients.forEach((client) => {
       if (client !== ws && client.readyState === 1) {
