@@ -618,7 +618,8 @@ function EditorPage() {
   }
 
   useEffect(() => {
-    const ws = new WebSocket(`ws://localhost:4000/${roomId}`)
+    // const ws = new WebSocket(`ws://localhost:4000/${roomId}`)
+    const ws = new WebSocket(`wss://collab-editor-backend-p7at.onrender.com/${roomId}`)
     wsRef.current = ws
 
     ws.onopen = () => {
@@ -773,7 +774,8 @@ function EditorPage() {
     return
   }
   try {
-    const response = await fetch('http://localhost:4000/run', {
+    // const response = await fetch('http://localhost:4000/run', {
+    const response = await fetch('https://collab-editor-backend-p7at.onrender.com/run', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
