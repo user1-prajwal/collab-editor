@@ -128,16 +128,36 @@ function runCode(language, code) {
     const req = https.request(options, (res) => {
       let data = ''
       res.on('data', (chunk) => { data += chunk })
-      res.on('end', () => {
-        try {
-          const result = JSON.parse(data)
-          const output = result.run.stdout || result.run.stderr || '✅ Ran successfully (no output)'
-          resolve({ output, error: !!result.run.stderr })
-        } catch {
-          resolve({ output: '❌ Failed to parse response', error: true })
-        }
-      })
+    //   res.on('end', () => {
+    //     try {
+    //       const result = JSON.parse(data)
+    //       const output = result.run.stdout || result.run.stderr || '✅ Ran successfully (no output)'
+    //       resolve({ output, error: !!result.run.stderr })
+    //     } catch {
+    //       resolve({ output: '❌ Failed to parse response', error: true })
+    //     }
+    //   })
+    // })
+
+
+    res.on('end', () => {
+    try {
+      const result = JSON.parse(data)
+      console.log('Piston response:', JSON.stringify(result))
+      
+      if (result.run) {
+        const output = result.run.stdout || result.run.stderr || '✅ Ran successfully (no output)'
+        resolve({ output, error: !!result.run.stderr })
+      } else {
+        console.log('Unexpected response:', data)
+        resolve({ output: '❌ Error: ' + data, error: true })
+      }
+    } catch (e) {
+      console.log('Raw response:', data)
+      resolve({ output: '❌ Raw: ' + data, error: true })
+    }
     })
+  })
 
     req.on('error', () => {
       resolve({ output: '❌ Could not connect to execution server', error: true })
