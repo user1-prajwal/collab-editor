@@ -8,6 +8,11 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* @keyframes loading {
+  0% { width: 0%; margin-left: 0%; }
+  50% { width: 100%; margin-left: 0%; }
+  100% { width: 0%; margin-left: 100%; }
+} */
 .remote-cursor {
   border-left: 2px solid white;
   margin-left: 1px;
