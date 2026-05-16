@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from 'react'
 import { Routes, Route, useParams, useNavigate } from 'react-router-dom'
 import Editor from '@monaco-editor/react'
@@ -19,104 +20,185 @@ function Landing() {
 
   function joinRoom() {
     if (!joinCode.trim()) { setError('Please enter a room code!'); return }
+    if (joinCode.trim().length !== 6) { setError('Room code must be 6 characters!'); return }
     navigate(`/room/${joinCode.trim().toUpperCase()}`)
   }
 
   return (
-    <div style={{
-      height: '100vh', background: '#1e1e1e',
-      display: 'flex', alignItems: 'center',
-      justifyContent: 'center', fontFamily: 'Arial, sans-serif'
-    }}>
-      <div style={{
-        display: 'flex', flexDirection: 'column',
-        alignItems: 'center', gap: '40px',
-        width: '100%', maxWidth: '480px', padding: '0 20px'
-      }}>
+    <div style={{ minHeight: '100vh', background: '#111827', fontFamily: 'Arial, sans-serif', color: 'white' }}>
 
-        {/* Logo */}
-        <div style={{ textAlign: 'center' }}>
-          <h1 style={{ color: 'white', fontSize: '42px', margin: '0 0 8px' }}>
-            ⚡ Collab Editor
-          </h1>
-          <p style={{ color: '#888', fontSize: '16px', margin: 0 }}>
-            Real-time collaborative code editor
-          </p>
+      {/* Navbar */}
+      <div style={{ padding: '18px 48px', borderBottom: '1px solid #1f2937', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#111827', position: 'sticky', top: 0, zIndex: 100 }}>
+        <span style={{ fontWeight: 'bold', fontSize: '22px', color: 'white' }}>
+          ⚡ Collab Editor
+        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#1a2e1a', border: '1px solid #4CAF50', borderRadius: '999px', padding: '6px 14px' }}>
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#4CAF50', display: 'inline-block' }} />
+          <span style={{ color: '#4CAF50', fontSize: '13px', fontWeight: '500' }}>Free — No signup needed</span>
+        </div>
+      </div>
+
+      {/* Hero */}
+      <div style={{ textAlign: 'center', padding: '80px 20px 60px', background: 'linear-gradient(180deg, #111827 0%, #131f35 100%)' }}>
+        <div style={{ display: 'inline-block', background: '#1a1a2e', border: '1px solid #3B82F6', borderRadius: '999px', padding: '6px 18px', color: '#60A5FA', fontSize: '13px', marginBottom: '28px', fontWeight: '500' }}>
+          🚀 Real-time collaboration for developers
         </div>
 
-        {/* Create Room */}
-        <div style={{
-          background: '#2d2d2d', border: '1px solid #444',
-          borderRadius: '12px', padding: '30px',
-          width: '100%', boxSizing: 'border-box'
-        }}>
-          <h2 style={{ color: 'white', margin: '0 0 8px', fontSize: '18px' }}>
-            🚀 Start a new room
-          </h2>
-          <p style={{ color: '#888', margin: '0 0 20px', fontSize: '13px' }}>
-            Create a room and share the code with friends
-          </p>
-          <button onClick={createRoom} style={{
-            width: '100%', padding: '12px',
-            background: '#4CAF50', color: 'white',
-            border: 'none', borderRadius: '8px',
-            fontSize: '16px', fontWeight: 'bold', cursor: 'pointer'
-          }}>
-            Create New Room
+        <h1 style={{ fontSize: '64px', fontWeight: 'bold', margin: '0 0 20px', lineHeight: 1.1, maxWidth: '800px', marginLeft: 'auto', marginRight: 'auto' }}>
+          Code Together,{' '}
+          <span style={{ background: 'linear-gradient(90deg, #4CAF50, #3B82F6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            In Real Time
+          </span>
+        </h1>
+
+        <p style={{ color: '#9CA3AF', fontSize: '20px', maxWidth: '580px', margin: '0 auto 48px', lineHeight: 1.7 }}>
+          The simplest way to code with your team. Share a room code and start collaborating instantly — from anywhere.
+        </p>
+
+        {/* CTA */}
+        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '24px' }}>
+          <button
+            onClick={createRoom}
+            style={{ padding: '14px 32px', background: 'linear-gradient(90deg, #4CAF50, #22c55e)', color: 'white', border: 'none', borderRadius: '10px', fontSize: '17px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 0 30px rgba(74,222,128,0.3)' }}
+          >
+            🚀 Create New Room
           </button>
-        </div>
-
-        {/* Divider */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}>
-          <div style={{ flex: 1, height: '1px', background: '#444' }} />
-          <span style={{ color: '#666', fontSize: '14px' }}>or join existing</span>
-          <div style={{ flex: 1, height: '1px', background: '#444' }} />
-        </div>
-
-        {/* Join Room */}
-        <div style={{
-          background: '#2d2d2d', border: '1px solid #444',
-          borderRadius: '12px', padding: '30px',
-          width: '100%', boxSizing: 'border-box'
-        }}>
-          <h2 style={{ color: 'white', margin: '0 0 8px', fontSize: '18px' }}>
-            🔗 Join a room
-          </h2>
-          <p style={{ color: '#888', margin: '0 0 20px', fontSize: '13px' }}>
-            Enter the room code shared by your friend
-          </p>
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '8px' }}>
             <input
               type="text"
-              placeholder="Room code e.g. ABC123"
+              placeholder="Enter room code..."
               value={joinCode}
               maxLength={6}
               onChange={(e) => { setJoinCode(e.target.value.toUpperCase()); setError('') }}
               onKeyDown={(e) => e.key === 'Enter' && joinRoom()}
-              style={{
-                flex: 1, padding: '10px 14px',
-                background: '#1e1e1e', border: '1px solid #555',
-                borderRadius: '8px', color: 'white',
-                fontSize: '15px', outline: 'none',
-                letterSpacing: '2px', fontWeight: 'bold'
-              }}
+              style={{ padding: '14px 18px', background: '#1f2937', border: '1px solid #374151', borderRadius: '10px', color: 'white', fontSize: '15px', outline: 'none', letterSpacing: '3px', fontWeight: 'bold', width: '180px', textAlign: 'center' }}
             />
-            <button onClick={joinRoom} style={{
-              padding: '10px 20px', background: '#2563EB',
-              color: 'white', border: 'none',
-              borderRadius: '8px', fontSize: '15px',
-              fontWeight: 'bold', cursor: 'pointer'
-            }}>
+            <button
+              onClick={joinRoom}
+              style={{ padding: '14px 24px', background: '#1D4ED8', color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer' }}
+            >
               Join →
             </button>
           </div>
-          {error && <p style={{ color: '#f87171', margin: '8px 0 0', fontSize: '13px' }}>{error}</p>}
         </div>
 
+        {error && (
+          <p style={{ color: '#F87171', fontSize: '14px', marginBottom: '20px' }}>⚠️ {error}</p>
+        )}
+
+        {/* Stats */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '48px', flexWrap: 'wrap', padding: '40px 0', marginTop: '20px', borderTop: '1px solid #1f2937', borderBottom: '1px solid #1f2937' }}>
+          {[
+            { number: '4', label: 'Languages supported' },
+            { number: '∞', label: 'Users per room' },
+            { number: '0ms', label: 'Signup time' },
+            { number: '100%', label: 'Free forever' },
+          ].map((s) => (
+            <div key={s.label} style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#4CAF50' }}>{s.number}</div>
+              <div style={{ color: '#6B7280', fontSize: '14px', marginTop: '4px' }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
       </div>
+
+      {/* Features */}
+      <div style={{ padding: '80px 48px', background: 'linear-gradient(180deg, #131f35 0%, #111827 100%)' }}>
+        <h2 style={{ textAlign: 'center', fontSize: '38px', fontWeight: 'bold', margin: '0 0 16px' }}>
+          Everything you need to code together
+        </h2>
+        <p style={{ textAlign: 'center', color: '#6B7280', fontSize: '16px', marginBottom: '56px' }}>
+          No setup. No install. Just share a room code and start coding.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', maxWidth: '1100px', margin: '0 auto' }}>
+          {[
+            { icon: '⚡', title: 'Real-time Sync', desc: 'Every keystroke syncs instantly across all users. No lag, no conflicts, no delays.', color: '#F59E0B' },
+            { icon: '👥', title: 'Live Cursors', desc: 'See exactly where your teammates are typing with colored cursors and name labels.', color: '#3B82F6' },
+            { icon: '💬', title: 'Built-in Chat', desc: 'Chat with your team without leaving the editor. Right inside the app.', color: '#8B5CF6' },
+            { icon: '▶', title: 'Run Code Instantly', desc: 'Execute JavaScript, Python, Java and C++ right in the browser using secure Docker sandboxes.', color: '#4CAF50' },
+            { icon: '📁', title: 'File Tree', desc: 'Create multiple files per room just like VS Code. Switch between files, all synced live.', color: '#EC4899' },
+            { icon: '📂', title: 'Import & Export', desc: 'Upload files from your laptop into the editor. Download everything as a ZIP when done.', color: '#14B8A6' },
+          ].map((f) => (
+            <div key={f.title} style={{ background: '#1a2540', border: '1px solid #1f2f4a', borderRadius: '16px', padding: '28px' }}>
+              <div style={{ fontSize: '36px', marginBottom: '16px' }}>{f.icon}</div>
+              <h3 style={{ color: 'white', fontSize: '18px', fontWeight: 'bold', margin: '0 0 10px' }}>{f.title}</h3>
+              <p style={{ color: '#6B7280', fontSize: '14px', lineHeight: 1.7, margin: 0 }}>{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* How it works */}
+      <div style={{ padding: '80px 48px', background: 'linear-gradient(180deg, #111827 0%, #131f35 100%)' }}>
+        <h2 style={{ textAlign: 'center', fontSize: '38px', fontWeight: 'bold', margin: '0 0 56px' }}>
+          How it works
+        </h2>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', flexWrap: 'wrap', maxWidth: '900px', margin: '0 auto' }}>
+          {[
+            { step: '1', title: 'Create a Room', desc: 'Click Create Room — you get a unique 6-letter code instantly.', color: '#4CAF50' },
+            { step: '2', title: 'Share the Code', desc: 'Send the room code to your friends or teammates.', color: '#3B82F6' },
+            { step: '3', title: 'Code Together', desc: 'Everyone joins, enters their name, and starts coding live!', color: '#8B5CF6' },
+          ].map((s, i) => (
+            <div key={s.step} style={{ display: 'flex', alignItems: 'flex-start' }}>
+              <div style={{ textAlign: 'center', maxWidth: '240px', padding: '0 20px' }}>
+                <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', fontWeight: 'bold', margin: '0 auto 16px', color: 'white' }}>
+                  {s.step}
+                </div>
+                <h3 style={{ color: 'white', fontSize: '18px', fontWeight: 'bold', margin: '0 0 8px' }}>{s.title}</h3>
+                <p style={{ color: '#6B7280', fontSize: '14px', lineHeight: 1.7, margin: 0 }}>{s.desc}</p>
+              </div>
+              {i < 2 && (
+                <div style={{ color: '#374151', fontSize: '32px', marginTop: '12px' }}>→</div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Languages */}
+      <div style={{ padding: '60px 48px', background: 'linear-gradient(180deg, #131f35 0%, #111827 100%)', textAlign: 'center' }}>
+        <h2 style={{ fontSize: '32px', fontWeight: 'bold', margin: '0 0 12px' }}>Supported Languages</h2>
+        <p style={{ color: '#6B7280', marginBottom: '36px', fontSize: '15px' }}>Write and run code in your favourite language</p>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          {[
+            { name: 'JavaScript', color: '#F7DF1E', bg: '#1a1a00' },
+            { name: 'Python', color: '#3776AB', bg: '#00101a' },
+            { name: 'Java', color: '#ED8B00', bg: '#1a0f00' },
+            { name: 'C++', color: '#00599C', bg: '#00081a' },
+            { name: 'TypeScript', color: '#3178C6', bg: '#00081a' },
+          ].map((lang) => (
+            <div key={lang.name} style={{ background: lang.bg, border: `1px solid ${lang.color}55`, borderRadius: '10px', padding: '12px 24px', color: lang.color, fontWeight: 'bold', fontSize: '15px' }}>
+              {lang.name}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Final CTA */}
+      <div style={{ padding: '80px 20px', background: 'linear-gradient(180deg, #111827 0%, #131f35 100%)', textAlign: 'center' }}>
+        <h2 style={{ fontSize: '42px', fontWeight: 'bold', margin: '0 0 16px' }}>
+          Ready to code together?
+        </h2>
+        <p style={{ color: '#6B7280', fontSize: '18px', marginBottom: '36px' }}>
+          No signup. No install. Just click and start.
+        </p>
+        <button
+          onClick={createRoom}
+          style={{ padding: '16px 40px', background: 'linear-gradient(90deg, #4CAF50, #22c55e)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 0 40px rgba(74,222,128,0.3)' }}
+        >
+          🚀 Start Coding Now — It is Free
+        </button>
+      </div>
+
+      {/* Footer */}
+      <div style={{ padding: '24px', borderTop: '1px solid #1f2937', textAlign: 'center', color: '#4B5563', fontSize: '13px', background: '#111827' }}>
+        Built by a CSE student 🎓 · Free forever · No data stored
+      </div>
+
     </div>
   )
 }
+
 
 // ─── EDITOR PAGE ─────────────────────────────────────────────────
 function EditorPage() {
