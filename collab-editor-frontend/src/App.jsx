@@ -39,7 +39,8 @@ function Landing() {
       style={{
         minHeight: '100vh',
         background:
-          'radial-gradient(circle at top, #172554 0%, #0B1120 35%, #020617 100%)',
+          // 'radial-gradient(circle at top, #ffffff 50%, #bac2da 50%, #b3b7c5 50%)',
+          'radial-gradient(circle at top center, rgba(255,255,255,1) 0%, rgba(255,255,255,0.9) 35%, #93cad1 70%, #777f9b 100%)',
         color: 'white',
         fontFamily: 'Inter, sans-serif',
         overflow: 'hidden',
@@ -81,7 +82,7 @@ function Landing() {
             fontWeight: '600',
           }}
         >
-          🚀 Free & No Signup Needed
+          Free & No Signup Needed
         </div>
       </div>
 
@@ -98,7 +99,7 @@ function Landing() {
           style={{
             width: '300px',
             height: '300px',
-            background: '#4F46E5',
+            background: '#4e46e5',
             position: 'absolute',
             borderRadius: '50%',
             filter: 'blur(140px)',
@@ -122,7 +123,7 @@ function Landing() {
           }}
         />
 
-        <div
+        {/* <div
           style={{
             display: 'inline-block',
             padding: '8px 18px',
@@ -134,25 +135,44 @@ function Landing() {
             fontSize: '14px',
           }}
         >
-          Multiplayer coding for developers
-        </div>
+        Code Together, Instantly
+        </div> */}
 
-        <h1
+        {/* <h1
           style={{
             fontSize: '72px',
             fontWeight: '900',
             lineHeight: 1,
             maxWidth: '950px',
+            color: '#000000',
             margin: '0 auto',
             letterSpacing: '-3px',
           }}
         >
           Code Together Like You’re On The Same Screen
-        </h1>
+        </h1> */}
+        <h1
+  style={{
+    fontSize: '72px',
+    fontWeight: '900',
+    lineHeight: 1,
+    maxWidth: '950px',
+    margin: '0 auto',
+    letterSpacing: '-3px',
+
+    background:
+            'linear-gradient(90deg, #072464, #2c687a, #4daab1)',
+    WebkitBackgroundClip: 'text',
+    backgroundClip: 'text',
+    color: 'transparent',
+  }}
+>
+  Code Together Like You’re On The Same Screen
+</h1>
 
         <p
           style={{
-            color: '#94A3B8',
+            color: '#0000009a',
             fontSize: '20px',
             maxWidth: '720px',
             margin: '28px auto 42px',
@@ -180,16 +200,16 @@ function Landing() {
               border: 'none',
               borderRadius: '14px',
               background:
-                'linear-gradient(135deg,#6366F1 0%,#8B5CF6 100%)',
+                'linear-gradient(135deg, #74f163 10%, #8B5CF6 100%)',
               color: 'white',
               fontSize: '17px',
               fontWeight: '700',
               cursor: 'pointer',
-              boxShadow: '0 0 40px rgba(99,102,241,0.45)',
+              // boxShadow: '0 0 40px rgba(111, 241, 99, 0.45)',
               transition: '0.3s',
             }}
           >
-            🚀 Create New Room
+             Create New Room
           </button>
 
           <div
@@ -414,16 +434,23 @@ function Landing() {
             style={{
               fontSize: '48px',
               marginBottom: '18px',
+              
               fontWeight: '900',
               letterSpacing: '-2px',
+              background:
+            'linear-gradient(90deg, #072464, #2c687a, #4daab1)',
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text',
+              color: 'transparent',
             }}
           >
             Built For Real Collaboration
           </h2>
+          
 
           <p
             style={{
-              color: '#94A3B8',
+              color: '#5984c0',
               fontSize: '18px',
             }}
           >
@@ -446,7 +473,7 @@ function Landing() {
               desc: 'Every keystroke updates live for everyone in the room.',
             },
             {
-              icon: '▶',
+              icon: '▶️',
               title: 'Run Code',
               desc: 'Execute JavaScript, Python, Java and C++ instantly.',
             },
@@ -466,7 +493,7 @@ function Landing() {
               desc: 'Organize projects with multiple synced files.',
             },
             {
-              icon: '☁',
+              icon: '🌩️',
               title: 'Cloud Ready',
               desc: 'Open rooms instantly from anywhere in the world.',
             },
@@ -476,8 +503,10 @@ function Landing() {
               style={{
                 padding: '34px',
                 borderRadius: '24px',
-                background: 'rgba(255,255,255,0.04)',
+                background: 'rgb(255, 255, 255)',
+                boxShadow: '0 0px 40px rgb(255, 255, 255)',
                 border: '1px solid rgba(255,255,255,0.06)',
+            
                 backdropFilter: 'blur(14px)',
                 transition: '0.3s',
               }}
@@ -489,6 +518,7 @@ function Landing() {
               <h3
                 style={{
                   fontSize: '22px',
+                  color: 'black',
                   marginBottom: '12px',
                 }}
               >
@@ -497,7 +527,7 @@ function Landing() {
 
               <p
                 style={{
-                  color: '#94A3B8',
+                  color: '#6b91c5',
                   lineHeight: 1.7,
                   fontSize: '15px',
                 }}
@@ -517,21 +547,25 @@ function Landing() {
         }}
       >
         <h2
-          style={{
-            fontSize: '58px',
-            fontWeight: '900',
-            maxWidth: '900px',
-            margin: '0 auto',
-            lineHeight: 1.1,
-            letterSpacing: '-3px',
-          }}
-        >
-          Start Your First Coding Session In 3 Seconds
-        </h2>
+            style={{
+              fontSize: '48px',
+              marginBottom: '18px',
+              
+              fontWeight: '900',
+              letterSpacing: '-2px',
+              background:
+            'linear-gradient(90deg, #dbd1dbb0, #e7e0e0, #ffffff)',
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text',
+              color: 'transparent',
+            }}
+          >
+            Built For Real Collaboration
+          </h2>
 
         <p
           style={{
-            color: '#94A3B8',
+            color: '#000000a9',
             marginTop: '24px',
             fontSize: '20px',
           }}
@@ -542,20 +576,20 @@ function Landing() {
         <button
           onClick={createRoom}
           style={{
-            marginTop: '40px',
-            padding: '18px 42px',
-            border: 'none',
-            borderRadius: '16px',
-            background:
-              'linear-gradient(135deg,#6366F1 0%,#8B5CF6 100%)',
-            color: 'white',
-            fontSize: '18px',
-            fontWeight: '800',
-            cursor: 'pointer',
-            boxShadow: '0 0 60px rgba(99,102,241,0.35)',
-          }}
+              padding: '16px 34px',
+              border: 'none',
+              borderRadius: '14px',
+              background:
+                'linear-gradient(135deg, #74f163 0%, #2d1564 100%)',
+              color: 'white',
+              fontSize: '17px',
+              fontWeight: '700',
+              cursor: 'pointer',
+              boxShadow: '0 0 40px rgba(218, 224, 218, 0.73)',
+              transition: '0.3s',
+            }}
         >
-          🚀 Create Room Now
+           Create Room Now
         </button>
       </div>
 
@@ -568,12 +602,15 @@ function Landing() {
           borderTop: '1px solid rgba(255,255,255,0.06)',
         }}
       >
-        Built with ❤️ by a CSE student
+       
       </div>
+
     </div>
   )
-}
 
+
+}
+     
 
 // ─── EDITOR PAGE ─────────────────────────────────────────────────
 function EditorPage() {
