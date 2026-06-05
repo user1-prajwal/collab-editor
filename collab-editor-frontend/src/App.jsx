@@ -236,7 +236,7 @@ function Landing() {
                 width: '180px',
                 padding: '16px',
                 borderRadius: '14px',
-                background: 'rgba(255,255,255,0.05)',
+                background: 'rgba(7, 4, 4, 0.87)',
                 border: error
                   ? '1px solid #EF4444'
                   : '1px solid rgba(255,255,255,0.08)',
@@ -255,8 +255,8 @@ function Landing() {
               style={{
                 padding: '16px 28px',
                 borderRadius: '14px',
-                border: '1px solid rgba(255,255,255,0.08)',
-                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgb(156, 192, 145)',
+                background: 'rgba(43, 143, 56, 0.62)',
                 color: 'white',
                 fontSize: '16px',
                 fontWeight: '700',
@@ -293,10 +293,10 @@ function Landing() {
             fontSize: '14px',
           }}
         >
-          <span>✓ No signup needed</span>
-          <span>✓ Instant room creation</span>
-          <span>✓ Real-time sync</span>
-          <span>✓ Free forever</span>
+          <span style={{color: '#9e7e16'}}>✓ No signup needed</span>
+          <span style={{color:'#16249ea9'}}>✓ Instant room creation</span>
+          <span style={{color: '#319e16c5'}}>✓ Real-time sync</span>
+          <span style={{ color: '#9e1616bb' }}>✓ Free forever</span>
         </div>
 
         {/* EDITOR PREVIEW */}
