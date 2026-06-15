@@ -88,6 +88,13 @@ function EditorPage() {
         setTimeout(() => setLanguageAlert(''), 4000)
       }
 
+      if (data.type === 'name-taken') {
+        alert(data.message)
+        setNameEntered(false)
+        setUsername('')
+        return
+      }
+
       if (data.type === 'users') setUsers(data.count)
       if (data.type === 'userlist') setUserList(data.users)
 

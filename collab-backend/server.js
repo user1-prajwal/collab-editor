@@ -121,6 +121,22 @@ wss.on('connection', (ws, req) => {
 
     // Save user info
     if (data.type === 'join') {
+      // Check if name already taken in this room
+      const existingUsers = roomUsers.get(roomId)
+      const nameTaken = existingUsers 
+        ? Array.from(existingUsers.values()).some(u => u.name === data.name)
+        : false
+
+      if (nameTaken) {
+        // Tell this user name is taken
+        ws.send(JSON.stringify({
+          type: 'name-taken',
+          message: `"${data.name}" is already in use in this room. Please choose a different name.`
+        }))
+        return
+      }
+
+      ws._username = data.name
       roomUsers.get(roomId)?.set(ws, {
         name: data.name,
         color: data.color
