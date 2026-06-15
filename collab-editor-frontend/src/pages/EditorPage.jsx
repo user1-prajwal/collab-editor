@@ -44,8 +44,8 @@ function EditorPage() {
   }
 
   useEffect(() => {
-    // const ws = new WebSocket(`wss://${BACKEND_URL.replace('https://', '')}/${roomId}`)
-    const ws = new WebSocket(`ws://localhost:4000/${roomId}`)
+    const ws = new WebSocket(`wss://${BACKEND_URL.replace('https://', '')}/${roomId}`)
+    // const ws = new WebSocket(`ws://localhost:4000/${roomId}`)
     wsRef.current = ws
 
     ws.onopen = () => setConnected(true)
