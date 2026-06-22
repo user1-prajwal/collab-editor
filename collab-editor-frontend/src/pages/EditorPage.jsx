@@ -451,7 +451,7 @@ function EditorPage() {
     const extMap = {
       py: 'python', java: 'java',
       cpp: 'cpp', ts: 'typescript', txt: 'plaintext',c:'c',
-      html: 'html', css: 'css', json: 'json', csharp: 'cs', fsharp: 'fs'
+      html: 'html', css: 'css', json: 'json', cs: 'csharp', fs: 'fsharp'
     }
     const newFile = {
       id: Date.now().toString(),
@@ -482,7 +482,7 @@ function EditorPage() {
           const extMap = {
             py: 'python', java: 'java',
             cpp: 'cpp', ts: 'typescript', txt: 'plaintext',c:'c',
-            html: 'html', css: 'css', json: 'json', csharp: 'cs', fsharp: 'fs'
+            html: 'html', css: 'css', json: 'json', cs: 'csharp', fs: 'fsharp'
           }
           const newFile = {
             id: Date.now().toString() + Math.random(),
