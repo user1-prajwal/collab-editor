@@ -4,7 +4,8 @@ export const LANGUAGES = [
   'cpp',
   'java',
   'typescript',
-  'csharp'
+  'csharp',
+  'fsharp'
 ]
 
 export const LANGUAGE_DISPLAY = {
@@ -14,7 +15,8 @@ export const LANGUAGE_DISPLAY = {
   cpp: 'C++',
   java: 'Java',
   typescript: 'TypeScript',
-  csharp: 'C#'
+  csharp: 'C#',
+  fsharp: 'F#'
 }
 
 
