@@ -14,7 +14,8 @@ function runCode(language, code) {
       php: 'php-8.5',
       ruby: 'ruby-4.0',
       haskell: 'haskell-9.12',
-      go: 'go-1.26'
+      go: 'go-1.26',
+      rust: 'rust-1.93'
     }
 
     const compiler = langMap[language]
