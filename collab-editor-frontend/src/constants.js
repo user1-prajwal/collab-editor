@@ -10,7 +10,8 @@ export const LANGUAGES = [
   'ruby',
   'haskell',
   'go',
-  'rust'
+  'rust',
+  'text'
 ]
 
 export const LANGUAGE_DISPLAY = {
@@ -26,7 +27,8 @@ export const LANGUAGE_DISPLAY = {
   ruby: 'Ruby',
   haskell: 'Haskell',
   go: 'Go',
-  rust: 'Rust'
+  rust: 'Rust',
+  text: 'Text'
 }
 
 

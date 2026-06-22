@@ -450,7 +450,7 @@ function EditorPage() {
     const ext = newFileName.split('.').pop()
     const extMap = {
       py: 'python', java: 'java',
-      cpp: 'cpp', ts: 'typescript', txt: 'plaintext',c:'c',
+      cpp: 'cpp', ts: 'typescript', txt: 'text',c:'c',
       html: 'html', css: 'css', json: 'json', cs: 'csharp', fs: 'fsharp',
       php: 'php', rb: 'ruby', hs: 'haskell', go: 'go', rs: 'rust'
     }
@@ -482,7 +482,7 @@ function EditorPage() {
           const ext = file.name.split('.').pop()
           const extMap = {
             py: 'python', java: 'java',
-            cpp: 'cpp', ts: 'typescript', txt: 'plaintext',c:'c',
+            cpp: 'cpp', ts: 'typescript', txt: 'text',c:'c',
             html: 'html', css: 'css', json: 'json', cs: 'csharp', fs: 'fsharp',
             php: 'php', rb: 'ruby', hs: 'haskell', go: 'go', rs: 'rust'
           }
@@ -651,7 +651,7 @@ function EditorPage() {
               cpp: 'cpp',
               java: 'java',
               typescript: 'ts',
-              plaintext: 'txt',
+              text: 'txt',
               csharp: 'cs',
               fsharp: 'fs',
               php: 'php',
