@@ -4,7 +4,7 @@ import Editor from '@monaco-editor/react'
 import FileTree from '../components/FileTree'
 import ChatPanel from '../components/ChatPanel'
 import UsersDropdown from '../components/UsersDropdown'
-import { LANGUAGES, SESSION_COLOR, BACKEND_URL } from '../constants'
+import { LANGUAGES, LANGUAGE_DISPLAY, SESSION_COLOR, BACKEND_URL } from '../constants'
 
 // How long (ms) a remote cursor stays visible after the user stops typing/selecting
 const CURSOR_IDLE_MS = 3500
@@ -65,7 +65,7 @@ function EditorPage() {
   const [newMessage, setNewMessage] = useState('')
   const [showChat, setShowChat] = useState(false)
   const [files, setFiles] = useState([
-    { id: '1', name: 'index.js', language: 'javascript', code: '// Start coding here...' }
+    { id: '1', name: 'a', language: 'python', code: 'print("Your next big idea starts right here.")' }
   ])
   const [activeFileId, setActiveFileId] = useState('1')
   const [showNewFile, setShowNewFile] = useState(false)
@@ -99,8 +99,8 @@ function EditorPage() {
   }
 
   useEffect(() => {
-    const ws = new WebSocket(`wss://${BACKEND_URL.replace('https://', '')}/${roomId}`)
-    // const ws = new WebSocket(`ws://localhost:4000/${roomId}`)
+    // const ws = new WebSocket(`wss://${BACKEND_URL.replace('https://', '')}/${roomId}`)
+    const ws = new WebSocket(`ws://localhost:4000/${roomId}`)
     wsRef.current = ws
 
     ws.onopen = () => setConnected(true)
@@ -449,8 +449,8 @@ function EditorPage() {
     if (!newFileName.trim()) return
     const ext = newFileName.split('.').pop()
     const extMap = {
-      js: 'javascript', py: 'python', java: 'java',
-      cpp: 'cpp', ts: 'typescript', txt: 'plaintext',
+      py: 'python', java: 'java',
+      cpp: 'cpp', ts: 'typescript', txt: 'plaintext',c:'c',
       html: 'html', css: 'css', json: 'json'
     }
     const newFile = {
@@ -480,8 +480,8 @@ function EditorPage() {
           const code = event.target.result
           const ext = file.name.split('.').pop()
           const extMap = {
-            js: 'javascript', py: 'python', java: 'java',
-            cpp: 'cpp', ts: 'typescript', txt: 'plaintext',
+            py: 'python', java: 'java',
+            cpp: 'cpp', ts: 'typescript', txt: 'plaintext',c:'c',
             html: 'html', css: 'css', json: 'json'
           }
           const newFile = {
@@ -643,8 +643,13 @@ function EditorPage() {
           onChange={(e) => {
             const newLang = e.target.value
             const extMap = {
-              javascript: 'js', python: 'py', java: 'java',
-              cpp: 'cpp', typescript: 'ts', plaintext: 'txt'
+              // javascript: 'js',
+              python: 'py',
+              c: 'c',
+              cpp: 'cpp',
+              java: 'java',
+              typescript: 'ts',
+              plaintext: 'txt'
             }
             setFiles(prev => prev.map(f => {
               if (f.id !== activeFileId) return f
@@ -669,9 +674,16 @@ function EditorPage() {
             borderRadius: '5px', cursor: 'pointer'
           }}
         >
-          {LANGUAGES.map((lang) => (
+          {/* {LANGUAGES.map((lang) => (
             <option key={lang} value={lang}>{lang}</option>
+          ))} */}
+          {LANGUAGES.map((lang) => (
+            <option key={lang} value={lang}>
+              {LANGUAGE_DISPLAY[lang] || lang}
+            </option>
           ))}
+
+
         </select>
 
         <button type="button" onClick={importFile} style={{
