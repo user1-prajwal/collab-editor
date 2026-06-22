@@ -8,7 +8,8 @@ export const LANGUAGES = [
   'fsharp',
   'php',
   'ruby',
-  'haskell'
+  'haskell',
+  'go'
 ]
 
 export const LANGUAGE_DISPLAY = {
@@ -22,7 +23,8 @@ export const LANGUAGE_DISPLAY = {
   fsharp: 'F#',
   php: 'PHP',
   ruby: 'Ruby',
-  haskell: 'Haskell'
+  haskell: 'Haskell',
+  go: 'Go'
 }
 
 
