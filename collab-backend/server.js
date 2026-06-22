@@ -1,4 +1,3 @@
-
 const http = require('http')
 const express = require('express')
 const { WebSocketServer } = require('ws')
@@ -40,7 +39,7 @@ const roomUsers = new Map()
 // Default file every room starts with
 function getDefaultFiles() {
   return [
-    { id: '1', name: 'index.js', language: 'javascript', code: '// Start coding here...' }
+    { id: '1', name: 'main.py', language: 'python', code: '# Start coding here...\nprint("Your next big idea starts right here.")' }
   ]
 }
 
