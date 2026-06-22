@@ -9,7 +9,8 @@ export const LANGUAGES = [
   'php',
   'ruby',
   'haskell',
-  'go'
+  'go',
+  'rust'
 ]
 
 export const LANGUAGE_DISPLAY = {
@@ -24,7 +25,8 @@ export const LANGUAGE_DISPLAY = {
   php: 'PHP',
   ruby: 'Ruby',
   haskell: 'Haskell',
-  go: 'Go'
+  go: 'Go',
+  rust: 'Rust'
 }
 
 
