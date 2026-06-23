@@ -108,6 +108,67 @@ function SidePanel({ activePanel, files, activeFileId, setActiveFileId, showNewF
         </div>
       )}
 
+      {/* Users Panel */}
+      {activePanel === 'users' && (
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+
+          {/* You */}
+          <div style={{
+            padding: '10px 14px',
+            display: 'flex', alignItems: 'center', gap: '10px',
+            borderBottom: '1px solid #2a2a2a'
+          }}>
+            <div style={{
+              width: '28px', height: '28px', borderRadius: '50%',
+              background: SESSION_COLOR,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '12px', fontWeight: 'bold', color: 'white', flexShrink: 0
+            }}>
+              {username.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <div style={{ color: 'white', fontSize: '13px', fontWeight: '500' }}>{username}</div>
+              <div style={{ color: '#4CAF50', fontSize: '11px' }}>you</div>
+            </div>
+            <div style={{
+              marginLeft: 'auto', width: '8px', height: '8px',
+              borderRadius: '50%', background: '#4CAF50', flexShrink: 0
+            }} />
+          </div>
+
+          {/* Others */}
+          {userList.filter(u => u.name !== username).length === 0 ? (
+            <div style={{ padding: '20px 14px', color: '#555', fontSize: '13px', textAlign: 'center' }}>
+              No one else yet...
+              <br />
+              <span style={{ fontSize: '11px', color: '#444' }}>Share room code to invite</span>
+            </div>
+          ) : (
+            userList.filter(u => u.name !== username).map((user) => (
+              <div key={user.name} style={{
+                padding: '10px 14px',
+                display: 'flex', alignItems: 'center', gap: '10px',
+                borderBottom: '1px solid #2a2a2a'
+              }}>
+                <div style={{
+                  width: '28px', height: '28px', borderRadius: '50%',
+                  background: user.color,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '12px', fontWeight: 'bold', color: 'white', flexShrink: 0
+                }}>
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <div style={{ color: '#ccc', fontSize: '13px' }}>{user.name}</div>
+                <div style={{
+                  marginLeft: 'auto', width: '8px', height: '8px',
+                  borderRadius: '50%', background: '#4CAF50', flexShrink: 0
+                }} />
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
 
     </div>
   )
