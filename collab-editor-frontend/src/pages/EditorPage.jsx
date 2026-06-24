@@ -99,6 +99,7 @@ function EditorPage() {
     const ws = new WebSocket(
       `wss://${BACKEND_URL.replace("https://", "")}/${roomId}`,
     );
+    // const ws = new WebSocket(`ws://localhost:4000/${roomId}`)
     wsRef.current = ws;
 
     ws.onopen = () => setConnected(true);
@@ -707,9 +708,13 @@ function EditorPage() {
           flexShrink: 0,
         }}
       >
-        <span style={{ color: "white", fontWeight: "bold", fontSize: "15px" }}>
-          ⚡ Collab Editor
-        </span>
+        <div style={{ display: "flex", alignItems: "center" }}>
+        <img
+          src="/syncra-icon.svg"
+          alt="Syncra"
+          style={{ height: "32px" }}
+        />
+      </div>
 
         {/* Room Code */}
         <div
