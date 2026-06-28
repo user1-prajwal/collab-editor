@@ -50,7 +50,7 @@ function EditorPage() {
   const [showChat,      setShowChat]      = useState(false);
   const [activePanel,   setActivePanel]   = useState("files");
 
-  // ── Flat file list (original structure) ──────────────────────────────────
+  // ── Flat file list (original structure) 
   const [files, setFiles] = useState([
     {
       id: "1",
@@ -80,7 +80,7 @@ function EditorPage() {
 
   const activeFile = files.find(f => f.id === activeFileId) || files[0];
 
-  // ── WebSocket ─────────────────────────────────────────────────────────────
+  // ── WebSocket 
 
   function sendJoin(name) {
     if (wsRef.current?.readyState === 1) {
@@ -120,6 +120,10 @@ function EditorPage() {
           setFiles(data.files);
           setActiveFileId(data.files[0].id);
         }
+        // When a new user joins, the server sends existing room members
+        // inside init. Without this line the new joiner never sees anyone
+        // who was already in the room (the abc/xyz bug).
+        if (data.users) setUserList(data.users);
         isRemoteChange.current = false;
       }
 
@@ -163,7 +167,25 @@ function EditorPage() {
       }
 
       if (data.type === "users")    setUsers(data.count);
+
+      // Replace full list when server sends it
       if (data.type === "userlist") setUserList(data.users);
+
+      // Server broadcasts "join" to ALL room members when someone connects.
+      // Without this handler, existing users (e.g. abc) are never added
+      // to the new joiner's list — they only appear on their own screen.
+      if (data.type === "join") {
+        setUserList(prev =>
+          prev.find(u => u.name === data.name)
+            ? prev
+            : [...prev, { name: data.name, color: data.color }]
+        );
+      }
+
+      // Remove user from list when they disconnect
+      if (data.type === "leave") {
+        setUserList(prev => prev.filter(u => u.name !== data.name));
+      }
 
       if (data.type === "chat") {
         setMessages(prev => [...prev, { name: data.name, color: data.color, text: data.text, time: data.time }]);
@@ -235,7 +257,7 @@ function EditorPage() {
     if (chatDiv) chatDiv.scrollTop = chatDiv.scrollHeight;
   }, [messages]);
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
+  // ── Handlers
 
   function handleCodeChange(value) {
     if (isRemoteChange.current) return;
@@ -304,7 +326,7 @@ function EditorPage() {
       wsRef.current.send(JSON.stringify({ type: "newfile", file: newFile }));
   }
 
-  // ── Delete file ───────────────────────────────────────────────────────────
+  // ── Delete file 
 
   function handleDeleteFile(fileId) {
     if (files.length <= 1) return; // always keep at least one file
@@ -395,7 +417,7 @@ function EditorPage() {
     URL.revokeObjectURL(url);
   }
 
-  // ── Render ────────────────────────────────────────────────────────────────
+  // ── Render 
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "#1e1e1e", fontFamily: "Arial, sans-serif" }}>
