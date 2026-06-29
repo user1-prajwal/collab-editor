@@ -4,7 +4,7 @@ import { useState } from 'react'
 const LANG_ICONS = {
   python:     '/lang_icons/python.png',
   c:          '/lang_icons/c.png',
-  cpp:        '/lang_icons/cpp.png',
+  cpp:        '/lang_icons/c++.png',
   java:       '/lang_icons/java.png',
   typescript: '/lang_icons/typescript.png',
   csharp:     '/lang_icons/csharp.png',
